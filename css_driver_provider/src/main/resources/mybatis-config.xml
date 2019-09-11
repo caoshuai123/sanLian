@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+ 	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+ 	 http://www.springframework.org/schema/context
+ 	 http://www.springframework.org/schema/context/spring-context-4.0.xsd
+ 	  http://www.springframework.org/schema/aop 
+      http://www.springframework.org/schema/aop/spring-aop.xsd
+ 	  http://www.springframework.org/schema/tx 
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+        
+  <!-- srping框架 配置文件 用于管理数据库连接池 -->  
+  
+  <bean id="dataSource_druid" class="com.alibaba.druid.pool.DruidDataSource" 
+      init-method="init" destroy-method="close"> 
+      
+   <!-- todo   --> 
+   <property name="driverClassName" value="${db.driver}" />  
+   <property name="url" value="${db.url}" />
+   <property name="username" value="${db.username}" />
+   <property name="password" value="${db.password}" />
+        
+  <!-- 配置初始化大小、最小、最大 --> 
+  <property name="initialSize" value="1" /> 
+  <property name="minIdle" value="1" /> 
+  <property name="maxActive" value="10" />
+
+  <!-- 配置获取连接等待超时的时间 --> 
+  <property name="maxWait" value="10000" />
+
+  <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 --> 
+  <property name="timeBetweenEvictionRunsMillis" value="60000" />
+
+  <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 --> 
+  <property name="minEvictableIdleTimeMillis" value="300000" />
+
+  <property name="testWhileIdle" value="true" />
+
+  <!-- 这里建议配置为TRUE，防止取到的连接不可用 --> 
+  <property name="testOnBorrow" value="true" /> 
+  <property name="testOnReturn" value="false" />
+
+  <!-- 打开PSCache，并且指定每个连接上PSCache的大小 --> 
+  <property name="poolPreparedStatements" value="true" /> 
+  <property name="maxPoolPreparedStatementPerConnectionSize" 
+   value="20" />
+
+  <!-- 这里配置提交方式，默认就是TRUE，可以不用配置 -->
+
+  <property name="defaultAutoCommit" value="true" />
+
+  <!-- 验证连接有效与否的SQL，不同的数据配置不同 --> 
+  <property name="validationQuery" value="select 1 " /> 
+  <property name="filters" value="stat" /> 
+  <!-- <property name="proxyFilters"> 
+   <list> 
+    <ref bean="logFilter" /> 
+   </list> 
+  </property>  -->
+ </bean>  
+    
+  <!-- 配置 Mybatis的工厂 -->  
+  <bean id="sqlSessionFactoryxx" class="org.mybatis.spring.SqlSessionFactoryBean">
+  	<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageInterceptor">
+					<property name="properties">
+						<!-- config params as the following -->
+						<value>
+							<!-- 代表指定分页插件使用 mysql -->
+							helperDialect=mysql
+							<!-- 分页参数合理化 -->
+							reasonable=true
+							<!-- 支持通过 Mapper 接口参数来传递分页参数 -->
+							supportMethodsArguments=true
+							<!-- 用于从对象中根据属性名取值 -->
+							params=count=countSql
+							<!-- 运行时根据多数据源自动识别对应方言的分页 -->
+							autoRuntimeDialect=true
+						</value>
+					</property>
+				</bean>
+			</array>
+		</property>
+    <property name="dataSource" ref="dataSource_druid"/>  
+    <property name="configLocation" value="classpath:sqlMapConfig.xml"/>
+    <!-- todo -->
+    <property name="typeAliasesPackage" value="${mybatis.aliases.package}"/>
+    <property name="mapperLocations" value="${mybatis.mapper.xml}"></property>  
+  </bean>  
+  
+ <!--  <bean id="sss" class="java.lang.String">
+  	<constructor-arg>
+  		<value>${mybatis.base.package}</value> 
+  	</constructor-arg>
+  </bean>  -->
+ 
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+  	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryxx"/>
+  
+    <property name="processPropertyPlaceHolders"  value="true"/>
+    <!--  todo  -->
+    <property name="basePackage"  value="com.css.driver.provider.dao"/>
+  </bean>  
+  
+  <!-- 配置MyBatis的事务管理器，因为MyBatis底层用的是JDBC事务管理器，所以在这里依然配置JDBC事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource_druid" />
+	</bean>
+		
+	<!-- 方式一;  用注解开启事务管理 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <aop:config proxy-target-class="true"/>
+    
+</beans>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.css.driver.provider.dao.DriverMapper">
+
+<select id="list" resultType="map">
+  select a.*,b.name shengName,c.name shiName, d.name quName from driver a left join address b on a.shengid=b.id 
+left join address c on b.id=c.parentid
+LEFT JOIN  address d on c.id=d.parentid 
+where a.name LIKE "%${value}%" GROUP BY a.id
+
+</select>
+
+<insert id="addDriver">
+   insert into driver(name,sex,num,shengid,shiid,quid,createDate) values
+   (#{name},#{sex},#{num},#{shengid},#{shiid},#{quid},#{createDate})
+</insert>
+
+<update id="updateDriver">
+update driver set name=#{name},sex=#{sex},num=#{num},shengid=#{shengid},
+shiid=#{shiid},quid=#{quid},createDate=#{createDate}
+where id=#{id}
+</update>
+
+</mapper>

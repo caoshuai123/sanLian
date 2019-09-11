@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation=" http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- 引用属性文件 -->
+	 <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:p2p.properties" />
+	</bean> 
+<!-- 	<context:property-placeholder location="classpath:p2p.properties" ignore-unresolvable="true"/>
+   -->
+	<!-- 允许使用注解 -->
+	<context:annotation-config />
+	<!-- dubbo 注解的扫描范围 todo -->
+	<dubbo:annotation
+		package="${dubbo.annotation.package}" />
+
+	<import resource="mybatis-config.xml"></import>
+
+	<!-- 引入配置文件 -->
+	<import resource="classpath:provider.xml" />
+
+
+</beans>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://code.alibabatech.com/schema/dubbo        
+    	http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        ">
+        
+   <bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:p2p.properties" />
+	</bean>
+        
+ <import resource="consumer.xml"/>
+ 
+ <mvc:annotation-driven/>
+ <!-- 配置自定扫描的包  todo -->
+ <dubbo:annotation package="${dubbo.annotation.package}" ></dubbo:annotation>
+   
+ <context:component-scan base-package="\$\{dubbo.annotation.package\}" >
+		<context:include-filter type="annotation" expression="com.alibaba.dubbo.config.annotation.Reference" />
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" />
+	</context:component-scan>
+    
+	<mvc:default-servlet-handler />
+	
+<!-- 	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/js/**" />
+			<mvc:exclude-mapping path="/css/**" />
+			<mvc:exclude-mapping path="/image/**" />
+			<mvc:exclude-mapping path="/assets/**" />
+			<mvc:exclude-mapping path="/static/**" />
+			<mvc:exclude-mapping path="/login.html" />
+			<mvc:exclude-mapping path="/**/*.html" />
+			<mvc:exclude-mapping path="/user/login"/>
+			<mvc:exclude-mapping path="/user/tologin"/>
+			<mvc:exclude-mapping path="/user/errorlogin"/>
+			<bean id="autoIntercepter" class="com.bw.c12.web.AuthInterceptor"></bean>
+			 这个类就是我们自定义的Interceptor 
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+
+    <!-- 配置视图解析器: 如何把 handler 方法返回值解析为实际的物理视图 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+        <property name="suffix" value=".jsp"></property>
+        <property name="order"  value="1"></property>
+    </bean>
+    
+    
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+     <property name="maxUploadSize" value="104857600" />
+     <property name="maxInMemorySize" value="4096" />
+     <property name="defaultEncoding" value="UTF-8"></property>
+   </bean>
+
+</beans>
